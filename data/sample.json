@@ -134,12 +134,16 @@
         "id": "m3u8",
         "items": [
             {
-                "title": "m3u8样品",
-                "link": "https://fastly.jsdelivr.net/gh/Nomeqc/static/video/test.m3u8"
+                "title": "m3u8 ts切片",
+                "link": "https://fastly.jsdelivr.net/gh/nomeqc/static@main/video/example_ts.m3u8"
             },
             {
-                "title": "m3u8样品(aes-128加密)",
-                "link": "https://fastly.jsdelivr.net/gh/Nomeqc/static/video/encrypt.m3u8"
+                "title": "m3u8 ts切片(aes-128加密)",
+                "link": "https://fastly.jsdelivr.net/gh/nomeqc/static@main/video/encrypt.m3u8"
+            },
+            {
+                "title": "m3u8 fmp4切片",
+                "link": "https://fastly.jsdelivr.net/gh/nomeqc/static@main/video/example_fmp4.m3u8"
             }
         ]
     }
