@@ -1,2 +1,2 @@
 # static
-static rersources storage.
+Fallrainy的静态资源库
