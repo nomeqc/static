@@ -18,7 +18,7 @@
                 testMode: false
             }, options);
 
-            var state = {
+            let state = {
                 fileBatch: [],
                 isUploading: false,
                 isOverLimit: false,
@@ -26,7 +26,7 @@
             };
 
             // create DOM elements
-            var dom = {
+            let dom = {
                 uploaderBox: $(this),
                 submitButton: $('<button class="js-uploader__submit-button uploader__submit-button uploader__hide">' +
                     options.submitButtonCopy + '<i class="js-uploader__icon fa fa-upload uploader__icon"></i></button>'),
@@ -80,12 +80,15 @@
                 dom.selectButton.on('change', selectFilesHandler);
                 dom.secondarySelectButton.on('click', function () { this.value = null; });
                 dom.secondarySelectButton.on('change', selectFilesHandler);
+                // handle clipboard paste
+                document.addEventListener('paste', selectFilesHandler);
 
                 // handle the submit click
                 dom.submitButton.on('click', uploadSubmitHandler);
 
                 // remove link handler
                 dom.uploaderBox.on('click', '.js-upload-remove-button', removeItemHandler);
+
 
                 // expose handlers for testing
                 if (options.testMode) {
@@ -105,21 +108,21 @@
             }
 
             function addItem(file) {
-                var fileName = cleanName(file.name);
-                var fileSize = file.size;
-                var id = state.listIndex;
-                var sizeWrapper;
-                var fileNameWrapper = $(`<span class="uploader__file-list__text"><span style="word-break: break-all; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-overflow: ellipsis;">${fileName}</span></span>`);
+                let fileName = cleanName(file.name);
+                let fileSize = file.size;
+                let id = state.listIndex;
+                let sizeWrapper;
+                let fileNameWrapper = $(`<span class="uploader__file-list__text"><span style="word-break: break-all; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-overflow: ellipsis;">${fileName}</span></span>`);
 
                 state.listIndex++;
 
-                var listItem = $('<li class="uploader__file-list__item" data-index="' + id + '"></li>');
-                var thumbnailContainer = $('<span class="uploader__file-list__thumbnail"></span>');
-                var thumbnail = $('<img class="thumbnail"><i class="fa fa-spinner fa-spin uploader__icon--spinner"></i>');
-                var removeLink = $('<span class="uploader__file-list__button"><button class="uploader__icon-button js-upload-remove-button fa fa-times" data-index="' + id + '"><svg t="1635091887036" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5315" width="24" height="24"><path d="M790.24 281.76l1.248 604.192c0 31.712-13.088 48.672-44.896 48.672l-461.504-1.28c-31.776 0-45.792-14.496-45.792-46.144l0-605.44-71.52 0 0 605.728c0 63.552 51.712 115.2 115.232 115.2l460.8 0c63.552 0 115.232-51.68 115.232-115.2l0-605.728-68.864 0zM335.744 411.392l0 428.928c0 2.784 0.416 5.472 1.12 8.032 21.088 0 42.208-0.032 63.328-0.192 0.672-2.464 1.088-5.152 1.088-7.84l0-428.736c-21.856-0.096-43.68-0.16-65.536-0.192l0 0zM624.992 412.928l0 427.424c0 2.208 0.256 4.384 0.704 6.496 21.344-0.128 42.72-0.16 64.032-0.224 0.448-2.048 0.672-4.096 0.672-6.336l0-427.168c-21.792-0.032-43.616-0.096-65.408-0.192l0 0zM978.912 165.664l-255.904 0 0-72.192c1.12-58.112-46.752-72.128-94.528-72.128l-229.952 0c-59.36 0-93.216 22.304-93.216 70.112l-0.256 74.208-259.968 0 0 70.496 933.792 0 0-70.496 0.032 0zM657.504 165.664l-288.032 0 0-50.496c0-16 11.296-29.92 27.296-29.92l230.432 1.248c16 0 30.08 11.488 30.08 27.488l0.224 51.68zM482.688 412.96l0 427.36c0 2.208 0.256 4.416 0.704 6.496 21.152-0.096 42.304-0.16 63.456-0.16 0.448-2.08 0.672-4.096 0.672-6.336l0-427.168c-21.632-0.032-43.232-0.096-64.864-0.192l0 0z" p-id="5316"></path></svg></button></span>');
-                var progress = $('<span class="uploader__file-list__thumbnail progress"></span>');
-                var link = $('<span class="uploader__file-list__thumbnail link"></span>');
-                var copy = $('<span class="uploader__file-list__thumbnail copy"></span>');
+                let listItem = $('<li class="uploader__file-list__item" data-index="' + id + '"></li>');
+                let thumbnailContainer = $('<span class="uploader__file-list__thumbnail"></span>');
+                let thumbnail = $('<img class="thumbnail"><i class="fa fa-spinner fa-spin uploader__icon--spinner"></i>');
+                let removeLink = $('<span class="uploader__file-list__button"><button class="uploader__icon-button js-upload-remove-button fa fa-times" data-index="' + id + '"><svg t="1635091887036" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5315" width="24" height="24"><path d="M790.24 281.76l1.248 604.192c0 31.712-13.088 48.672-44.896 48.672l-461.504-1.28c-31.776 0-45.792-14.496-45.792-46.144l0-605.44-71.52 0 0 605.728c0 63.552 51.712 115.2 115.232 115.2l460.8 0c63.552 0 115.232-51.68 115.232-115.2l0-605.728-68.864 0zM335.744 411.392l0 428.928c0 2.784 0.416 5.472 1.12 8.032 21.088 0 42.208-0.032 63.328-0.192 0.672-2.464 1.088-5.152 1.088-7.84l0-428.736c-21.856-0.096-43.68-0.16-65.536-0.192l0 0zM624.992 412.928l0 427.424c0 2.208 0.256 4.384 0.704 6.496 21.344-0.128 42.72-0.16 64.032-0.224 0.448-2.048 0.672-4.096 0.672-6.336l0-427.168c-21.792-0.032-43.616-0.096-65.408-0.192l0 0zM978.912 165.664l-255.904 0 0-72.192c1.12-58.112-46.752-72.128-94.528-72.128l-229.952 0c-59.36 0-93.216 22.304-93.216 70.112l-0.256 74.208-259.968 0 0 70.496 933.792 0 0-70.496 0.032 0zM657.504 165.664l-288.032 0 0-50.496c0-16 11.296-29.92 27.296-29.92l230.432 1.248c16 0 30.08 11.488 30.08 27.488l0.224 51.68zM482.688 412.96l0 427.36c0 2.208 0.256 4.416 0.704 6.496 21.152-0.096 42.304-0.16 63.456-0.16 0.448-2.08 0.672-4.096 0.672-6.336l0-427.168c-21.632-0.032-43.232-0.096-64.864-0.192l0 0z" p-id="5316"></path></svg></button></span>');
+                let progress = $('<span class="uploader__file-list__thumbnail progress"></span>');
+                let link = $('<span class="uploader__file-list__thumbnail link"></span>');
+                let copy = $('<span class="uploader__file-list__thumbnail copy"></span>');
 
                 const processFile = async () => {
                     let result = await new Promise((resolve, reject) => {
@@ -133,7 +136,7 @@
                                 'iVBORw': 'png',
                                 'Qk': 'bmp'
                             }
-                            var base64Str = reader.result.split(",")[1];
+                            let base64Str = reader.result.split(",")[1];
                             let format_key = Object.keys(formatMap).find(item => base64Str.startsWith(item))
                             const format = formatMap[format_key];
                             if (!format) {
@@ -172,12 +175,11 @@
                     renderControls()
                 }
                 processFile()
-
             }
 
             function getExtension(path) {
-                var basename = path.split(/[\\/]/).pop();
-                var pos = basename.lastIndexOf('.');
+                let basename = path.split(/[\\/]/).pop();
+                let pos = basename.lastIndexOf('.');
 
                 if (basename === '' || pos < 1) {
                     return '';
@@ -187,10 +189,10 @@
 
             function formatBytes(bytes, decimals) {
                 if (bytes === 0) return '0 Bytes';
-                var k = 1024;
-                var dm = decimals + 1 || 3;
-                var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-                var i = Math.floor(Math.log(bytes) / Math.log(k));
+                let k = 1024;
+                let dm = decimals + 1 || 3;
+                let sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+                let i = Math.floor(Math.log(bytes) / Math.log(k));
                 return (bytes / Math.pow(k, i)).toPrecision(dm) + ' ' + sizes[i];
             }
 
@@ -207,8 +209,8 @@
                     return;
                 }
                 if (state.fileBatch.length !== 0) {
-                    var data = new FormData();
-                    for (var i = 0; i < state.fileBatch.length; i++) {
+                    let data = new FormData();
+                    for (let i = 0; i < state.fileBatch.length; i++) {
                         data.append('files[]', state.fileBatch[i].file, state.fileBatch[i].fileName);
                     }
                     $.ajax({
@@ -227,11 +229,11 @@
                 e.stopPropagation();
 
                 if (!state.isUploading) {
-                    // files come from the input or a drop
-                    var files = e.target.files || e.dataTransfer.files || e.dataTransfer.getData;
+                    // files come from the input or a drop or clipboardData
+                    let files = e.target?.files || e.dataTransfer?.files || e.dataTransfer?.getData || e.clipboardData?.files;
 
                     // process each incoming file
-                    for (var i = 0; i < files.length; i++) {
+                    for (let i = 0; i < files.length; i++) {
                         addItem(files[i]);
                     }
                 }
@@ -258,7 +260,7 @@
                     while (target && target.tagName.toLowerCase() != 'li') {
                         target = target.parentNode;
                     }
-                    var removeIndex = $(target).data('index');
+                    let removeIndex = $(target).data('index');
                     removeItem(removeIndex);
                     $(target).remove();
                 }
@@ -268,7 +270,7 @@
 
             function removeItem(id) {
                 // remove from the batch
-                for (var i = 0; i < state.fileBatch.length; i++) {
+                for (let i = 0; i < state.fileBatch.length; i++) {
                     if (state.fileBatch[i].id === parseInt(id)) {
                         state.fileBatch.splice(i, 1);
                         break;
