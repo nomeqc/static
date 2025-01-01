@@ -1,6 +1,8 @@
 /*
  * Â©2016 Quicken Loans Inc. All rights reserved.
  */
+
+
 /* global jQuery FormData FileReader */
 (function ($) {
     $.fn.uploader = function (options, testMode) {
@@ -11,7 +13,7 @@
                 furtherInstructionsCopy: '你也可以删除文件',
                 selectButtonCopy: '选择文件',
                 secondarySelectButtonCopy: '选择多个文件',
-                dropZone: $(this),
+                dropZone: $(document.querySelector("body")),
                 fileTypeWhiteList: ['jpg', 'png', 'jpeg', 'gif', 'bmp'],
                 badFileTypeMessage: '对不起，我们不能接受这种类型的文件。',
                 ajaxUrl: '/ajax/upload',
@@ -66,28 +68,72 @@
                     .after(dom.furtherInstructions);
             }
 
+            function parseElement(htmlString) {
+                return new DOMParser().parseFromString(htmlString, 'text/html').body.firstChild;
+            }
+
             function bindUIEvents() {
                 // handle drag and drop
-                options.dropZone.on('dragover dragleave', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
+                const dropzone = parseElement(`<div id="dropzone" style="box-sizing: border-box; display: none; position: fixed; width: 100%; height: 100%; left: 0; top: 0; z-index: 99999; background: #F6F1F1; border: 8px dashed #60a7dc;"><h3 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;">拖拽到这里添加图片</h3></div>`)
+                document.body.append(dropzone)
+
+                function showDropZone() {
+                    // 显示拖拽区域的时候隐藏滚动条
+                    document.body.style.overflow = "hidden"
+                    dropzone.style.display = "block"
+                }
+
+                function hideDropZone() {
+                    // 隐藏拖拽区域的时候恢复滚动条
+                    document.body.style.overflow = "auto"
+                    dropzone.style.display = "none"
+                }
+
+                //阻止当前页面元素的拖动
+                let drapOnSelf = false
+                window.addEventListener('dragstart', function (e) {
+                    drapOnSelf = true
+                })
+                window.addEventListener('dragend', function (e) {
+                    drapOnSelf = false;
+                })
+
+                let drageEventTarget = ""
+                window.addEventListener('dragenter', function (e) {
+                    drageEventTarget = e.target;
+                    if (!drapOnSelf) {
+                        showDropZone()
+                    }
                 });
-                $.event.props.push('dataTransfer'); // jquery bug hack
-                options.dropZone.on('drop', selectFilesHandler);
+
+                window.addEventListener('dragleave', function (e) {
+                    if (e.target == drageEventTarget) {
+                        hideDropZone()
+                    }
+                });
+                dropzone.addEventListener('dragover', (e) => {
+                    e.dataTransfer.dropEffect = 'copy';
+                    e.preventDefault();
+                });
+                dropzone.addEventListener('drop', function (e) {
+                    hideDropZone()
+                    selectFilesHandler(e)
+                });
 
                 // hack for being able selecting the same file name twice
-                dom.selectButton.on('click', function () { this.value = null; });
-                dom.selectButton.on('change', selectFilesHandler);
-                dom.secondarySelectButton.on('click', function () { this.value = null; });
-                dom.secondarySelectButton.on('change', selectFilesHandler);
+                dom.selectButton.on('click', function () { this.value = null; })
+                dom.selectButton.on('change', selectFilesHandler)
+                dom.secondarySelectButton.on('click', function () { this.value = null; })
+                dom.secondarySelectButton.on('change', selectFilesHandler)
+
                 // handle clipboard paste
-                document.addEventListener('paste', selectFilesHandler);
+                document.addEventListener('paste', selectFilesHandler)
 
                 // handle the submit click
-                dom.submitButton.on('click', uploadSubmitHandler);
+                dom.submitButton.on('click', uploadSubmitHandler)
 
                 // remove link handler
-                dom.uploaderBox.on('click', '.js-upload-remove-button', removeItemHandler);
+                dom.uploaderBox.on('click', '.js-upload-remove-button', removeItemHandler)
 
 
                 // expose handlers for testing
@@ -95,7 +141,7 @@
                     options.dropZone.on('uploaderTestEvent', function (e) {
                         switch (e.functionName) {
                             case 'selectFilesHandler':
-                                selectFilesHandler(e);
+                                selectFilesHandler(e)
                                 break;
                             case 'uploadSubmitHandler':
                                 uploadSubmitHandler(e);
@@ -147,19 +193,19 @@
                             resolve({ 'base64': reader.result, 'format': format })
                         };
                         reader.onerror = function () {
-                            thumbnail.remove();
+                            thumbnail.remove()
                             resolve({ 'error': '图片读取出错了' })
                         };
-                        reader.readAsDataURL(file);
+                        reader.readAsDataURL(file)
                     })
                     let error = result['error']
                     if (!error) {
                         // file is ok, add it to the batch
-                        state.fileBatch.push({ file: file, id: id, fileName: fileName, fileSize: fileSize, base64: result['base64'], format: result['format'] });
-                        sizeWrapper = $('<span class="uploader__file-list__size">' + formatBytes(fileSize) + '</span>');
+                        state.fileBatch.push({ file: file, id: id, fileName: fileName, fileSize: fileSize, base64: result['base64'], format: result['format'] })
+                        sizeWrapper = $('<span class="uploader__file-list__size">' + formatBytes(fileSize) + '</span>')
                     } else {
                         // file is not ok, only add it to the dom
-                        sizeWrapper = $('<span class="uploader__file-list__size"><span class="uploader__error">' + error + '</span></span>');
+                        sizeWrapper = $('<span class="uploader__file-list__size"><span class="uploader__error">' + error + '</span></span>')
                     }
                     thumbnailContainer.append(thumbnail);
                     listItem.append(thumbnailContainer);
@@ -178,22 +224,22 @@
             }
 
             function getExtension(path) {
-                let basename = path.split(/[\\/]/).pop();
-                let pos = basename.lastIndexOf('.');
+                let basename = path.split(/[\\/]/).pop()
+                let pos = basename.lastIndexOf('.')
 
                 if (basename === '' || pos < 1) {
-                    return '';
+                    return ''
                 }
-                return basename.slice(pos + 1);
+                return basename.slice(pos + 1)
             }
 
             function formatBytes(bytes, decimals) {
-                if (bytes === 0) return '0 Bytes';
-                let k = 1024;
-                let dm = decimals + 1 || 3;
-                let sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-                let i = Math.floor(Math.log(bytes) / Math.log(k));
-                return (bytes / Math.pow(k, i)).toPrecision(dm) + ' ' + sizes[i];
+                if (bytes === 0) return '0 Bytes'
+                let k = 1024
+                let dm = decimals + 1 || 3
+                let sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+                let i = Math.floor(Math.log(bytes) / Math.log(k))
+                return (bytes / Math.pow(k, i)).toPrecision(dm) + ' ' + sizes[i]
             }
 
             function cleanName(name) {
@@ -204,9 +250,15 @@
 
             function uploadSubmitHandler() {
                 if (options.uploadFiles) {
-                    let preparedFiles = state.fileBatch.filter(file => file['base64'] && !file['uploaded']);
-                    options.uploadFiles(preparedFiles);
-                    return;
+                    const preparedFiles = state.fileBatch.filter(file => {
+                        const canUpload = !["finished", "uploading", "waiting"].includes(file["status"]) && file['base64']
+                        if (canUpload) {
+                            file['status'] = 'waiting'
+                        }
+                        return canUpload
+                    })
+                    options.uploadFiles(preparedFiles)
+                    return
                 }
                 if (state.fileBatch.length !== 0) {
                     let data = new FormData();
@@ -230,11 +282,12 @@
 
                 if (!state.isUploading) {
                     // files come from the input or a drop or clipboardData
-                    let files = e.target?.files || e.dataTransfer?.files || e.dataTransfer?.getData || e.clipboardData?.files;
-
-                    // process each incoming file
-                    for (let i = 0; i < files.length; i++) {
-                        addItem(files[i]);
+                    const filelist = e.target?.files || e.dataTransfer?.files || e.dataTransfer?.getData || e.clipboardData?.files;
+                    for (let i = 0; i < filelist.length; i++) {
+                        const file = filelist[i]
+                        if (['image/jpeg', 'image/png', 'image/gif', 'image/bmp'].includes(file.type)) {
+                            addItem(file)
+                        }
                     }
                 }
                 renderControls();
@@ -253,16 +306,16 @@
             }
 
             function removeItemHandler(e) {
-                e.preventDefault();
+                e.preventDefault()
 
                 if (!state.isUploading) {
-                    let target = e.target;
+                    let target = e.target
                     while (target && target.tagName.toLowerCase() != 'li') {
-                        target = target.parentNode;
+                        target = target.parentNode
                     }
-                    let removeIndex = $(target).data('index');
-                    removeItem(removeIndex);
-                    $(target).remove();
+                    let removeIndex = $(target).data('index')
+                    removeItem(removeIndex)
+                    $(target).remove()
                 }
 
                 renderControls();
@@ -277,7 +330,7 @@
                     }
                 }
                 // remove from the DOM
-                dom.fileList.find('li[data-index="' + id + '"]').remove();
+                dom.fileList.find('li[data-index="' + id + '"]').remove()
             }
         });
     };
