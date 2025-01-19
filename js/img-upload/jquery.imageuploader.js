@@ -158,7 +158,7 @@
                 let fileSize = file.size;
                 let id = state.listIndex;
                 let sizeWrapper;
-                let fileNameWrapper = $(`<span class="uploader__file-list__text"><span style="word-break: break-all; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-overflow: ellipsis;">${fileName}</span></span>`);
+                let fileNameWrapper = $(`<span class="uploader__file-list__text"><span style="word-break: break-all; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-overflow: ellipsis;" contentEditable="plaintext-only">${fileName}</span></span>`);
 
                 state.listIndex++;
 
@@ -172,7 +172,7 @@
 
                 const processFile = async () => {
                     let result = await new Promise((resolve, reject) => {
-                        let reader = new FileReader();
+                        const reader = new FileReader();
                         reader.onloadend = function () {
                             thumbnail.attr('src', reader.result);
                             thumbnail.parent().find('i').remove();
@@ -283,11 +283,17 @@
                 if (!state.isUploading) {
                     // files come from the input or a drop or clipboardData
                     const filelist = e.target?.files || e.dataTransfer?.files || e.dataTransfer?.getData || e.clipboardData?.files;
+                    const illegalFiles = []
                     for (let i = 0; i < filelist.length; i++) {
                         const file = filelist[i]
                         if (['image/jpeg', 'image/png', 'image/gif', 'image/bmp'].includes(file.type)) {
                             addItem(file)
+                        } else {
+                            illegalFiles.push(file)
                         }
+                    }
+                    if (illegalFiles.length > 0 && typeof options.illegalFiles === "function") {
+                        options.illegalFiles(illegalFiles)
                     }
                 }
                 renderControls();
