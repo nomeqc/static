@@ -37,13 +37,15 @@
                 selectButton: $('<input style="height: 0; width: 0;" id="fileinput' + index + '" type="file" multiple class="js-uploader__file-input uploader__file-input">' +
                     '<label for="fileinput' + index + '" style="cursor: pointer;" class="js-uploader__file-label uploader__file-label">' +
                     options.selectButtonCopy + '</label>'),
+                viewPics: $('<label style="cursor: pointer;" class="js-uploader__file-label uploader__file-label">查看图片</label>'),
                 secondarySelectButton: $('<input style="height: 0; width: 0;" id="secondaryfileinput' + index + '" type="file"' +
                     ' multiple class="js-uploader__file-input uploader__file-input">' +
                     '<label for="secondaryfileinput' + index + '" style="cursor: pointer;" class="js-uploader__file-label uploader__file-label uploader__file-label--secondary">' +
                     options.secondarySelectButtonCopy + '</label>'),
                 fileList: $('<ul class="js-uploader__file-list uploader__file-list"></ul>'),
                 contentsContainer: $('<div class="js-uploader__contents uploader__contents"></div>'),
-                furtherInstructions: $('<p class="js-uploader__further-instructions uploader__further-instructions uploader__hide">' + options.furtherInstructionsCopy + '</p>')
+                furtherInstructions: $('<p class="js-uploader__further-instructions uploader__further-instructions uploader__hide">' + options.furtherInstructionsCopy + '</p>'),
+                viewPics2: $('<label style="cursor: pointer;" class="js-uploader__file-label uploader__file-label uploader__file-label--secondary">查看图片</label>')
             };
 
             // empty out whatever is in there
@@ -58,9 +60,11 @@
             function setupDOM(dom) {
                 dom.contentsContainer
                     .append(dom.instructions)
-                    .append(dom.selectButton);
+                    .append(dom.selectButton)
+                    .append(dom.viewPics);
                 dom.furtherInstructions
-                    .append(dom.secondarySelectButton);
+                    .append(dom.secondarySelectButton)
+                    .append(dom.viewPics2);
                 dom.uploaderBox
                     .append(dom.fileList)
                     .append(dom.contentsContainer)
@@ -135,6 +139,19 @@
                 // remove link handler
                 dom.uploaderBox.on('click', '.js-upload-remove-button', removeItemHandler)
 
+                function viewPics() {
+                    const link = document.createElement('a')
+                    link.href = 'dingtalk-pics.html'
+                    link.target = '_blank'
+                    link.style.position = 'fixed'
+                    document.body.appendChild(link)
+                    link.click()
+                    document.body.removeChild(link)
+                }
+
+                //查看已上传图片
+                dom.viewPics.on('click', viewPics)
+                dom.viewPics2.on('click', viewPics)
 
                 // expose handlers for testing
                 if (options.testMode) {
